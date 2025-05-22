@@ -145,6 +145,19 @@ def polar_radius(matches: List[str]) -> List[str]:
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
 
+def get_chess_rating(name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"Peak rating(?P<rating>\d+)"
+    error_text = (
+        "Page infobox has no rating information"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("rating")
+
+def chess_rating(matches: List[str]) -> List[str]:
+    return [get_chess_rating(matches[0])]
+
 
 # type aliases to make pa_list type more readable, could also have written:
 # pa_list: List[Tuple[List[str], Callable[[List[str]], List[Any]]]] = [...]
@@ -156,6 +169,7 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
+    ("what is % rating".split(), chess_rating),
     (["bye"], bye_action),
 ]
 
