@@ -145,19 +145,57 @@ def polar_radius(matches: List[str]) -> List[str]:
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
 
-def get_chess_rating(name: str) -> str:
+def get_peak_chess_rating(name: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
-    pattern = r"Peak rating(?P<rating>\d+)"
+    pattern = r"Peak rating\s*(?P<rating>\d+)"
     error_text = (
-        "Page infobox has no rating information"
+        "Page infobox has no peak rating information"
     )
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("rating")
 
-def chess_rating(matches: List[str]) -> List[str]:
-    return [get_chess_rating(matches[0])]
+def get_current_chess_rating(name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"FIDE rating\s*(?P<rating>\d+)"
+    error_text = (
+        "Page infobox has no current rating information"
+    )
+    match = get_match(infobox_text, pattern, error_text)
 
+    return match.group("rating")
+
+def get_chess_title(name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"Title\s*(?P<title>\w+ \w*)"
+    error_text = (
+        "Page infobox has no title information"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("title")
+
+def get_peak_ranking(name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"Peak ranking\s*\w+\.\s*(?P<ranking>\d+)"
+    error_text = (
+        "Page infobox has no ranking information"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("ranking")
+
+def peak_chess_rating(matches: List[str]) -> List[str]:
+    return [get_peak_chess_rating(matches[0])]
+
+def current_chess_rating(matches: List[str]) -> List[str]:
+    return [get_current_chess_rating(matches[0])]
+
+def chess_title(matches: List[str]) -> List[str]:
+    return [get_chess_title(matches[0])]
+
+def peak_ranking(matches: List[str]) -> List[str]:
+    return [get_peak_ranking(matches[0])]
 
 # type aliases to make pa_list type more readable, could also have written:
 # pa_list: List[Tuple[List[str], Callable[[List[str]], List[Any]]]] = [...]
@@ -169,7 +207,10 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
-    ("what is % rating".split(), chess_rating),
+    ("what is the peak rating of %".split(), peak_chess_rating),
+    ("what is the current rating of %".split(), current_chess_rating),
+    ("what title does % have".split(), chess_title),
+    ("what is the peak ranking of %".split(), peak_ranking),
     (["bye"], bye_action),
 ]
 
@@ -198,7 +239,7 @@ def search_pa_list(src: List[str]) -> List[str]:
 def query_loop() -> None:
     """The simple query loop. The try/except structure is to catch Ctrl-C or Ctrl-D
     characters and exit gracefully"""
-    print("Welcome to the movie database!\n")
+    print("Chess is better than Go!\n")
     while True:
         try:
             print()
